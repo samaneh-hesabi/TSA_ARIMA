@@ -6,19 +6,25 @@ This project provides a comprehensive toolkit for financial time series analysis
 # 2. Project Structure
 ```
 time-series-analysis/
-├── src/                    # Source code directory
-│   ├── main.py            # Main entry point
+├── src/                    # Main source code directory for S&P 500 analysis
+│   ├── main.py            # Main entry point for S&P 500 analysis
 │   ├── analysis.py        # Time series analysis functions
-│   └── data_processor.py  # Data processing utilities
+│   ├── data_processor.py  # Data processing utilities
+│   └── README.md          # Source code documentation
+├── scr2/                   # Bitcoin price analysis directory
+│   ├── process.py         # Main script for Bitcoin price analysis
+│   ├── btc-usd-max.csv    # Bitcoin historical price data
+│   └── README.md          # Bitcoin analysis documentation
 ├── notebooks/             # Jupyter notebooks for analysis
 ├── data/                  # Data storage directory
 ├── environment.yml        # Conda environment configuration
-└── requirements.txt       # Python package dependencies
+├── requirements.txt       # Python package dependencies
+└── .gitignore            # Git ignore configuration
 ```
 
 # 3. Features and Capabilities
 
-## 3.1 Data Processing
+## 3.1 S&P 500 Analysis (src directory)
 - Automated data fetching from Yahoo Finance
 - Data cleaning and preprocessing
 - Feature engineering:
@@ -26,14 +32,21 @@ time-series-analysis/
   - Log returns calculation
   - Moving averages (20-day and 50-day)
   - Volatility calculation (20-day rolling)
-
-## 3.2 Analysis Methods
 - Basic statistical analysis
 - Stationarity testing (Augmented Dickey-Fuller test)
 - Normality testing (Shapiro-Wilk test)
 - Autocorrelation analysis (ACF and PACF plots)
 - Volume analysis
 - Distribution analysis
+
+## 3.2 Bitcoin Analysis (scr2 directory)
+- Historical Bitcoin price data analysis
+- ARIMA (1,0,1) modeling for price prediction
+- Stationarity testing using Augmented Dickey-Fuller test
+- ACF and PACF analysis
+- 10-day price forecasting
+- Residual analysis
+- Comprehensive visualization of results
 
 ## 3.3 Visualization
 - Time series plots with moving averages
@@ -43,6 +56,8 @@ time-series-analysis/
 - Autocorrelation function plots
 
 # 4. Dataset Information
+
+## 4.1 S&P 500 Data
 
 | Feature | Description | Data Type | Example |
 |---------|-------------|-----------|---------|
@@ -56,6 +71,96 @@ time-series-analysis/
 | MA20 | 20-day moving average | float | 3980.50 |
 | MA50 | 50-day moving average | float | 3950.25 |
 | Volatility | 20-day rolling volatility | float | 0.015 |
+
+### 4.1.1 S&P 500 Analysis Explanation
+
+The S&P 500 analysis focuses on traditional financial market analysis with the following key components:
+
+1. **Price Analysis**
+   - Daily price movements (Open, High, Low, Close)
+   - Volume analysis to understand trading activity
+   - Moving averages (20-day and 50-day) for trend identification
+   - Volatility measurement using 20-day rolling standard deviation
+
+2. **Returns Analysis**
+   - Daily percentage returns calculation
+   - Log returns for better statistical properties
+   - Distribution analysis of returns
+   - Normality testing using Shapiro-Wilk test
+
+3. **Technical Analysis**
+   - Moving average crossovers for trend signals
+   - Volume-price relationship analysis
+   - Volatility clustering analysis
+   - Support and resistance level identification
+
+4. **Statistical Analysis**
+   - Stationarity testing using Augmented Dickey-Fuller test
+   - Autocorrelation analysis (ACF and PACF plots)
+   - Distribution fitting and analysis
+   - Outlier detection and analysis
+
+## 4.2 Bitcoin Data
+
+| Feature | Description | Data Type | Example |
+|---------|-------------|-----------|---------|
+| Timestamp | Date and time of the price record | datetime | 2023-01-01 00:00:00 |
+| Price | Bitcoin price in USD | float | 42000.50 |
+| Returns | Daily percentage returns | float | 0.015 |
+| Log_Returns | Natural log of returns | float | 0.0149 |
+| ARIMA_Prediction | Predicted price from ARIMA model | float | 42500.75 |
+| Residual | Difference between actual and predicted price | float | -500.25 |
+| ACF | Autocorrelation at different lags | float | 0.85 |
+| PACF | Partial autocorrelation at different lags | float | 0.45 |
+
+### 4.2.1 Bitcoin Analysis Explanation
+
+The Bitcoin analysis focuses on time series forecasting using ARIMA modeling with the following key components:
+
+1. **Data Preprocessing**
+   - Timestamp handling and chronological ordering
+   - Price data normalization
+   - Returns calculation (both simple and logarithmic)
+   - Data cleaning and outlier handling
+
+2. **ARIMA Modeling**
+   - Model configuration: ARIMA(1,0,1)
+     - 1 autoregressive term
+     - 0 differencing terms
+     - 1 moving average term
+   - Model fitting and parameter estimation
+   - Residual analysis for model validation
+   - 10-day price forecasting
+
+3. **Statistical Analysis**
+   - Stationarity testing using Augmented Dickey-Fuller test
+   - Autocorrelation analysis (ACF plots)
+   - Partial autocorrelation analysis (PACF plots)
+   - Residual diagnostics and model validation
+
+4. **Forecasting and Validation**
+   - 10-day price predictions
+   - Confidence intervals for forecasts
+   - Model accuracy metrics
+   - Residual analysis for model improvement
+
+### 4.2.2 Key Differences Between Analyses
+
+1. **Methodology**
+   - S&P 500: Traditional financial analysis with technical indicators
+   - Bitcoin: Advanced time series modeling with ARIMA
+
+2. **Focus**
+   - S&P 500: Market behavior and technical analysis
+   - Bitcoin: Price prediction and forecasting
+
+3. **Data Characteristics**
+   - S&P 500: More stable, traditional market data
+   - Bitcoin: Higher volatility, cryptocurrency-specific patterns
+
+4. **Analysis Tools**
+   - S&P 500: Moving averages, volume analysis, volatility measures
+   - Bitcoin: ARIMA modeling, autocorrelation analysis, forecasting
 
 # 5. Installation
 
@@ -80,6 +185,17 @@ time-series-analysis/
    ```bash
    pip install -r requirements.txt
    ```
+
+## 5.3 Dependencies
+The project requires the following Python packages:
+- pandas (>=2.0.0)
+- numpy (>=1.24.0)
+- matplotlib (>=3.7.0)
+- seaborn (>=0.12.0)
+- scikit-learn (>=1.2.0)
+- statsmodels (>=0.14.0)
+- jupyter (>=1.0.0)
+- python-dotenv (>=1.0.0)
 
 # 6. Usage
 
