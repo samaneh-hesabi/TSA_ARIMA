@@ -1,30 +1,55 @@
-<div style="font-size:2.5em; font-weight:bold; text-align:center; margin-top:20px;">Time Series Analysis Project</div>
+<div style="font-size:2.5em; font-weight:bold; text-align:center; margin-top:20px;">Time Series Analysis with ARIMA</div>
 
 # 1. Project Overview
-This project provides a comprehensive toolkit for financial time series analysis, focusing on stock market data analysis and visualization. The project is particularly focused on analyzing the S&P 500 index, but can be extended to analyze any financial instrument available through Yahoo Finance.
+This project provides a comprehensive toolkit for financial time series analysis, focusing on stock market data analysis and visualization. The main focus is on analyzing the S&P 500 index using ARIMA (AutoRegressive Integrated Moving Average) models, but the toolkit can be extended to analyze any financial instrument available through Yahoo Finance.
 
 # 2. Project Structure
 ```
 time-series-analysis/
-├── src/                    # Main source code directory for S&P 500 analysis
-│   ├── main.py            # Main entry point for S&P 500 analysis
+├── src/                    # Main source code directory
+│   ├── main.py            # Main entry point for analysis
 │   ├── analysis.py        # Time series analysis functions
 │   ├── data_processor.py  # Data processing utilities
 │   └── README.md          # Source code documentation
-├── scr2/                   # Bitcoin price analysis directory
-│   ├── process.py         # Main script for Bitcoin price analysis
-│   ├── btc-usd-max.csv    # Bitcoin historical price data
-│   └── README.md          # Bitcoin analysis documentation
-├── notebooks/             # Jupyter notebooks for analysis
-├── data/                  # Data storage directory
+├── sp500_data.csv         # S&P 500 historical data
 ├── environment.yml        # Conda environment configuration
 ├── requirements.txt       # Python package dependencies
 └── .gitignore            # Git ignore configuration
 ```
 
-# 3. Features and Capabilities
+# 3. How to Run
 
-## 3.1 S&P 500 Analysis (src directory)
+## 3.1 Basic Usage
+Run the main script to analyze S&P 500 data:
+```bash
+python src/main.py
+```
+
+## 3.2 Custom Analysis
+To analyze a different stock or time period, modify the parameters in `main.py` or use the code as shown below:
+```python
+from src.data_processor import TimeSeriesProcessor
+from src.analysis import TimeSeriesAnalyzer
+
+# Initialize processor and load data
+processor = TimeSeriesProcessor(
+    ticker='AAPL',  # Change to desired ticker
+    start_date='2020-01-01',  # Change start date
+    end_date='2023-12-31'  # Change end date
+)
+
+# Load and clean data
+data = processor.load_data()
+cleaned_data = processor.clean_data()
+
+# Perform analysis
+analyzer = TimeSeriesAnalyzer(processor)
+analyzer.basic_analysis()
+```
+
+# 4. Features and Capabilities
+
+## 4.1 Data Processing
 - Automated data fetching from Yahoo Finance
 - Data cleaning and preprocessing
 - Feature engineering:
@@ -32,6 +57,9 @@ time-series-analysis/
   - Log returns calculation
   - Moving averages (20-day and 50-day)
   - Volatility calculation (20-day rolling)
+- Missing value handling
+
+## 4.2 Analysis
 - Basic statistical analysis
 - Stationarity testing (Augmented Dickey-Fuller test)
 - Normality testing (Shapiro-Wilk test)
@@ -39,25 +67,46 @@ time-series-analysis/
 - Volume analysis
 - Distribution analysis
 
-## 3.2 Bitcoin Analysis (scr2 directory)
-- Historical Bitcoin price data analysis
-- ARIMA (1,0,1) modeling for price prediction
-- Stationarity testing using Augmented Dickey-Fuller test
-- ACF and PACF analysis
-- 10-day price forecasting
-- Residual analysis
-- Comprehensive visualization of results
-
-## 3.3 Visualization
+## 4.3 Visualization
 - Time series plots with moving averages
 - Returns distribution plots
 - Q-Q plots for normality assessment
 - Volume analysis plots
 - Autocorrelation function plots
 
-# 4. Dataset Information
+# 5. Understanding ARIMA
 
-## 4.1 S&P 500 Data
+## 5.1 ARIMA Parameters
+ARIMA models have three parameters:
+- **p (AR)**: The number of lag observations (AutoRegressive component)
+- **d (I)**: The degree of differencing (Integration component)
+- **q (MA)**: The size of the moving average window (Moving Average component)
+
+The script automatically determines the best values for these parameters by testing different combinations and selecting the model with the lowest AIC (Akaike Information Criterion).
+
+## 5.2 ARIMA Workflow
+The analysis follows these systematic steps:
+
+1. **Data Loading**: Downloads historical data from Yahoo Finance
+2. **Stationarity Check**: Tests if the data is stationary (required for ARIMA) using the Augmented Dickey-Fuller test
+3. **Data Visualization**: Shows original vs differenced data
+4. **Parameter Identification**: Displays ACF and PACF plots to help identify model parameters
+5. **Model Selection**: Performs grid search to find optimal ARIMA parameters based on AIC and BIC
+6. **Model Evaluation**: Evaluates the best model on test data with key performance metrics
+7. **Residual Analysis**: Checks if model residuals resemble white noise (important validation step)
+8. **Forecasting**: Predicts future values with confidence intervals
+
+## 5.3 Model Evaluation Metrics
+The script calculates the following metrics:
+- **AIC/BIC**: Information criteria for model selection (lower is better)
+- **MAE**: Mean Absolute Error
+- **MSE**: Mean Squared Error
+- **RMSE**: Root Mean Squared Error
+- **MAPE**: Mean Absolute Percentage Error
+
+# 6. Dataset Information
+
+## 6.1 S&P 500 Data
 
 | Feature | Description | Data Type | Example |
 |---------|-------------|-----------|---------|
@@ -72,148 +121,31 @@ time-series-analysis/
 | MA50 | 50-day moving average | float | 3950.25 |
 | Volatility | 20-day rolling volatility | float | 0.015 |
 
-### 4.1.1 S&P 500 Analysis Explanation
+## 6.2 Analysis Components
 
-The S&P 500 analysis focuses on traditional financial market analysis with the following key components:
+### 6.2.1 Price Analysis
+- Daily price movements (Open, High, Low, Close)
+- Volume analysis to understand trading activity
+- Moving averages (20-day and 50-day) for trend identification
+- Volatility measurement using 20-day rolling standard deviation
 
-1. **Price Analysis**
-   - Daily price movements (Open, High, Low, Close)
-   - Volume analysis to understand trading activity
-   - Moving averages (20-day and 50-day) for trend identification
-   - Volatility measurement using 20-day rolling standard deviation
+### 6.2.2 Returns Analysis
+- Daily percentage returns calculation
+- Log returns for better statistical properties
+- Distribution analysis of returns
+- Normality testing using Shapiro-Wilk test
 
-2. **Returns Analysis**
-   - Daily percentage returns calculation
-   - Log returns for better statistical properties
-   - Distribution analysis of returns
-   - Normality testing using Shapiro-Wilk test
+### 6.2.3 Technical Analysis
+- Moving average crossovers for trend signals
+- Volume-price relationship analysis
+- Volatility clustering analysis
+- Support and resistance level identification
 
-3. **Technical Analysis**
-   - Moving average crossovers for trend signals
-   - Volume-price relationship analysis
-   - Volatility clustering analysis
-   - Support and resistance level identification
-
-4. **Statistical Analysis**
-   - Stationarity testing using Augmented Dickey-Fuller test
-   - Autocorrelation analysis (ACF and PACF plots)
-   - Distribution fitting and analysis
-   - Outlier detection and analysis
-
-## 4.2 Bitcoin Data
-
-| Feature | Description | Data Type | Example |
-|---------|-------------|-----------|---------|
-| Timestamp | Date and time of the price record | datetime | 2023-01-01 00:00:00 |
-| Price | Bitcoin price in USD | float | 42000.50 |
-| Returns | Daily percentage returns | float | 0.015 |
-| Log_Returns | Natural log of returns | float | 0.0149 |
-| ARIMA_Prediction | Predicted price from ARIMA model | float | 42500.75 |
-| Residual | Difference between actual and predicted price | float | -500.25 |
-| ACF | Autocorrelation at different lags | float | 0.85 |
-| PACF | Partial autocorrelation at different lags | float | 0.45 |
-
-### 4.2.1 Bitcoin Analysis Explanation
-
-The Bitcoin analysis focuses on time series forecasting using ARIMA modeling with the following key components:
-
-1. **Data Preprocessing**
-   - Timestamp handling and chronological ordering
-   - Price data normalization
-   - Returns calculation (both simple and logarithmic)
-   - Data cleaning and outlier handling
-
-2. **ARIMA Modeling**
-   - Model configuration: ARIMA(1,0,1)
-     - 1 autoregressive term
-     - 0 differencing terms
-     - 1 moving average term
-   - Model fitting and parameter estimation
-   - Residual analysis for model validation
-   - 10-day price forecasting
-
-3. **Statistical Analysis**
-   - Stationarity testing using Augmented Dickey-Fuller test
-   - Autocorrelation analysis (ACF plots)
-   - Partial autocorrelation analysis (PACF plots)
-   - Residual diagnostics and model validation
-
-4. **Forecasting and Validation**
-   - 10-day price predictions
-   - Confidence intervals for forecasts
-   - Model accuracy metrics
-   - Residual analysis for model improvement
-
-### 4.2.2 Key Differences Between Analyses
-
-1. **Methodology**
-   - S&P 500: Traditional financial analysis with technical indicators
-   - Bitcoin: Advanced time series modeling with ARIMA
-
-2. **Focus**
-   - S&P 500: Market behavior and technical analysis
-   - Bitcoin: Price prediction and forecasting
-
-3. **Data Characteristics**
-   - S&P 500: More stable, traditional market data
-   - Bitcoin: Higher volatility, cryptocurrency-specific patterns
-
-4. **Analysis Tools**
-   - S&P 500: Moving averages, volume analysis, volatility measures
-   - Bitcoin: ARIMA modeling, autocorrelation analysis, forecasting
-
-# 5. Installation
-
-## 5.1 Prerequisites
-- Python 3.8 or higher
-- Conda package manager
-
-## 5.2 Setup
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/time-series-analysis.git
-   cd time-series-analysis
-   ```
-
-2. Create and activate the conda environment:
-   ```bash
-   conda env create -f environment.yml
-   conda activate time-series-env
-   ```
-
-3. Install additional requirements:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## 5.3 Dependencies
-The project requires the following Python packages:
-- pandas (>=2.0.0)
-- numpy (>=1.24.0)
-- matplotlib (>=3.7.0)
-- seaborn (>=0.12.0)
-- scikit-learn (>=1.2.0)
-- statsmodels (>=0.14.0)
-- jupyter (>=1.0.0)
-- python-dotenv (>=1.0.0)
-
-# 6. Usage
-
-## 6.1 Basic Usage
-Run the main script to analyze S&P 500 data:
-```bash
-python src/main.py
-```
-
-## 6.2 Custom Analysis
-To analyze a different stock or time period, modify the parameters in `main.py`:
-```python
-processor = TimeSeriesProcessor(
-    ticker='AAPL',  # Change to desired ticker
-    start_date='2020-01-01',  # Change start date
-    end_date='2023-12-31'  # Change end date
-)
-```
+### 6.2.4 Statistical Analysis
+- Stationarity testing using Augmented Dickey-Fuller test
+- Autocorrelation analysis (ACF and PACF plots)
+- Distribution fitting and analysis
+- Outlier detection and analysis
 
 # 7. Results and Output
 
@@ -317,7 +249,43 @@ Shapiro-Wilk Test - p-value: 0.0000
 3. Returns are stationary (p-value < 0.05)
 4. Returns are not normally distributed (p-value < 0.05)
 
-# 8. Contributing
+# 8. Installation
+
+## 8.1 Prerequisites
+- Python 3.8 or higher
+- Conda package manager (recommended)
+
+## 8.2 Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/time-series-analysis.git
+   cd time-series-analysis
+   ```
+
+2. Create and activate the conda environment:
+   ```bash
+   conda env create -f environment.yml
+   conda activate time-series-env
+   ```
+
+3. Alternatively, install using pip:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## 8.3 Dependencies
+The project requires the following Python packages:
+- pandas (>=2.0.0)
+- numpy (>=1.24.0)
+- matplotlib (>=3.7.0)
+- seaborn (>=0.12.0)
+- scikit-learn (>=1.2.0)
+- statsmodels (>=0.14.0)
+- jupyter (>=1.0.0)
+- python-dotenv (>=1.0.0)
+- yfinance (>=0.2.0)
+
+# 9. Contributing
 
 1. Fork the repository
 2. Create a feature branch:
@@ -334,10 +302,10 @@ Shapiro-Wilk Test - p-value: 0.0000
    ```
 5. Open a pull request
 
-# 9. License
+# 10. License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-# 10. Acknowledgments
+# 11. Acknowledgments
 - Yahoo Finance API for providing financial data
 - Python scientific computing community for the excellent libraries used in this project
 
