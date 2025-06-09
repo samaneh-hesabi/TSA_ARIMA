@@ -13,63 +13,15 @@ import os                          # For file operations
 warnings.filterwarnings('ignore')    # Suppress warnings to keep output clean
 ##===================================
 ##===================================
-# STEP 1: Load and prepare data
-print("Step 1: Loading and preparing data...")
-ticker = '^GSPC'  # S&P 500 index symbol
-start_date = '2019-01-01'
-end_date = datetime.now().strftime('%Y-%m-%d')
-
-# Function to create sample data if needed
-def create_sample_data():
-    print("Creating sample stock data for testing...")
-    end_date = datetime.now()
-    start_date = end_date - timedelta(days=1000)  # ~3 years of data
-    
-    # Create date range
-    date_range = pd.date_range(start=start_date, end=end_date, freq='B')  # Business days
-    
-    # Create a sample price series with realistic properties
-    np.random.seed(42)  # For reproducibility
-    prices = [1000]  # Starting price
-    for _ in range(1, len(date_range)):
-        # Random walk with drift
-        change = np.random.normal(0.0005, 0.01) * prices[-1]
-        prices.append(prices[-1] + change)
-    
-    # Create DataFrame
-    df = pd.DataFrame({'Close': prices}, index=date_range)
-    return df
-
-# Data loading options:
-# Option 1: Try to load from CSV file first
-# Option 2: If no CSV, try to download from Yahoo Finance
-# Option 3: If Yahoo Finance fails, use sample data
-
+# STEP 1: Load data from CSV
+print("Step 1: Loading data from CSV...")
 csv_path = 'sp500_data.csv'
-use_sample_data = False  # Flag to determine if we're using sample data
 
-try:
-    # First try to load from CSV if it exists
-    if os.path.exists(csv_path):
-        print(f"Loading data from {csv_path}")
-        data = pd.read_csv(csv_path, index_col=0, parse_dates=True)
-    else:
-        # If no CSV exists, try to download data
-        print(f"Loading {ticker} data from {start_date} to {end_date}")
-        stock = yf.Ticker(ticker)
-        data = stock.history(start=start_date, end=end_date)
-        
-        # Save to CSV for future use
-        data.to_csv(csv_path)
-    
-    # Keep only the closing prices
-    data = data[['Close']]
-    
-except Exception as e:
-    print(f"Error loading data: {e}")
-    print("Using generated sample data instead...")
-    data = create_sample_data()
-    use_sample_data = True
+# Load data from CSV
+data = pd.read_csv(csv_path, index_col=0, parse_dates=True)
+
+# Keep only the closing prices
+data = data[['Close']]
 
 # Fill missing values with previous day's value
 data = data.fillna(method='ffill')
@@ -81,7 +33,7 @@ print("Data prepared successfully")
 # STEP 2: Check stationarity
 print("\nStep 2: Checking stationarity...")
 # Augmented Dickey-Fuller test to check if data is stationary
-result = adfuller(data['Close'].dropna())
+result = adfuller(data['Close'])
 print(result)
 print('ADF Statistic:', result[0])  # Test statistic
 print('p-value:', result[1])        # p-value
@@ -91,13 +43,12 @@ if result[1] <= 0.05:
     print("Data is stationary (reject H0)")    # If p-value <= 0.05, data is stationary
 else:
     print("Data is not stationary (fail to reject H0)")    # If p-value > 0.05, data is not stationary
-    print("Differencing is needed to make the data stationary")    # If data is not stationary, differencing is needed to make it stationary
     
 # Make the data stationary by differencing
 diff_data = data['Close'].diff().dropna()
 
 # Check stationarity of differenced data
-diff_result = adfuller(diff_data.dropna())
+diff_result = adfuller(diff_data)
 print('\nDifferenced data:')
 print('ADF Statistic:', diff_result[0])
 print('p-value:', diff_result[1])
@@ -110,7 +61,7 @@ else:
     # Try second differencing if first is not enough
     print("Differenced data is still not stationary, trying second differencing")
     diff2_data = diff_data.diff().dropna()   # Second difference
-    diff2_result = adfuller(diff2_data.dropna())
+    diff2_result = adfuller(diff2_data)
     print('\nSecond differenced data:')
     print('ADF Statistic:', diff2_result[0])
     print('p-value:', diff2_result[1])
@@ -136,8 +87,12 @@ ax1.set_title('Original Time Series')
 ax1.grid(True)
 
 # Differenced data
-ax2.plot(diff_data)
-ax2.set_title('Differenced Time Series')
+if d_value == 1:
+    ax2.plot(diff_data)
+    ax2.set_title('First Differenced Time Series')
+else:  # d_value == 2
+    ax2.plot(diff2_data)
+    ax2.set_title('Second Differenced Time Series')
 ax2.grid(True)
 
 plt.tight_layout()
@@ -147,27 +102,35 @@ plt.show()
 ##===================================
 
 # STEP 4: Analyze ACF and PACF to identify ARIMA parameters
-print("\nStep 4: Analyzing ACF and PACF to identify ARIMA parameters...")
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+#print("\nStep 4: Analyzing ACF and PACF to identify ARIMA parameters...")
+#fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
 
 # Plot ACF
-plot_acf(diff_data, ax=ax1, lags=20)
-ax1.set_title('Autocorrelation Function (ACF)')
-ax1.grid(True)
+#if d_value == 1:
+#    plot_acf(diff_data, ax=ax1, lags=20)
+#    ax1.set_title('ACF of First Differenced Series')
+#else:  # d_value == 2
+#    plot_acf(diff2_data, ax=ax1, lags=20)
+#    ax1.set_title('ACF of Second Differenced Series')
+#ax1.grid(True)
 
 # Plot PACF
-plot_pacf(diff_data, ax=ax2, lags=20)
-ax2.set_title('Partial Autocorrelation Function (PACF)')
-ax2.grid(True)
+#if d_value == 1:
+#    plot_pacf(diff_data, ax=ax2, lags=20)
+#    ax2.set_title('PACF of First Differenced Series')
+#else:  # d_value == 2
+#    plot_pacf(diff2_data, ax=ax2, lags=20)
+#    ax2.set_title('PACF of Second Differenced Series')
+#ax2.grid(True)
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+#plt.show()
 
-print("\nHow to interpret ACF/PACF plots for ARIMA parameter selection:")
-print("- p (AR order): Look at PACF plot - how many significant lags before it cuts off")
-print("- d (differencing): Already determined by stationarity tests")
-print("- q (MA order): Look at ACF plot - how many significant lags before it cuts off")
-print(f"Based on stationarity tests, d = {d_value}")
+#print("\nHow to interpret ACF/PACF plots for ARIMA parameter selection:")
+#print("- p (AR order): Look at PACF plot - how many significant lags before it cuts off")
+#print("- d (differencing): Already determined by stationarity tests")
+#print("- q (MA order): Look at ACF plot - how many significant lags before it cuts off")
+#print(f"Based on stationarity tests, d = {d_value}")
 
 ##===================================
 ##===================================
@@ -241,7 +204,7 @@ print("\nStep 6: Evaluating the best model...")
 print("\nBest model summary:")
 print(best_model.summary())
 
-# Get predictions for test period
+# Get predictions for test period 
 start_idx = len(train_data)
 end_idx = len(train_data) + len(test_data) - 1
 predictions = best_model.predict(start=start_idx, end=end_idx)
@@ -328,6 +291,8 @@ full_results = full_model.fit()
 steps = 30  # Number of days to forecast
 forecast = full_results.forecast(steps=steps)
 forecast_ci = full_results.get_forecast(steps=steps).conf_int()
+#print(forecast)
+#print(forecast_ci)
 
 # Create forecast index (dates)
 last_date = data.index[-1]
