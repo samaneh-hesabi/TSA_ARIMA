@@ -1,72 +1,57 @@
 <div style="font-size:2.5em; font-weight:bold; text-align:center; margin-top:20px;">Time Series Analysis Source Code</div>
 
 # 1. Overview
-This directory contains the core Python source code for the Time Series Analysis project, specifically designed for financial time series analysis of stock market data.
+This directory contains the core Python source code for the Time Series Analysis project, specifically designed for financial time series analysis of stock market data using ARIMA models.
 
 # 2. Files
 ## 2.1 main.py
-The entry point of the application that:
-- Initializes the data processing pipeline with S&P 500 data
-- Coordinates the analysis workflow
-- Demonstrates the basic usage of the TimeSeriesProcessor and TimeSeriesAnalyzer classes
+The main implementation file that contains:
+- Data loading and preprocessing functions
+- ARIMA model implementation
+- Time series analysis utilities
+- Visualization functions
 
-## 2.2 analysis.py
-Contains the TimeSeriesAnalyzer class with comprehensive financial analysis capabilities:
-- Basic dataset information and statistics
-- Stationarity tests (ADF test)
-- Normality tests (Shapiro-Wilk test)
-- Autocorrelation analysis (ACF and PACF plots)
-- Time series visualization (price, returns, volatility)
-- Distribution analysis (histograms and Q-Q plots)
-- Volume analysis and visualization
-
-## 2.3 data_processor.py
-Contains the TimeSeriesProcessor class for data handling:
-- Data loading from Yahoo Finance
-- Data cleaning and preprocessing
-- Feature engineering:
-  - Daily returns calculation
-  - Log returns calculation
-  - Moving averages (20-day and 50-day)
-  - Volatility calculation
-- Missing value handling
+Key functions:
+- `load_data()`: Loads and preprocesses stock price data
+- `make_stationary()`: Transforms data to achieve stationarity
+- `train_arima_model()`: Implements ARIMA model training with parameter selection
+- `evaluate_and_plot()`: Model evaluation and visualization
+- `make_forecast()`: Future price prediction
 
 # 3. Usage
 Basic usage example:
 ```python
-from src.data_processor import TimeSeriesProcessor
-from src.analysis import TimeSeriesAnalyzer
+# The script is designed to be run directly
+python main.py
 
-# Initialize processor and load data
-processor = TimeSeriesProcessor(
-    ticker='^GSPC',  # S&P 500 index
-    start_date='2019-01-01',
-    end_date='2024-01-01'
-)
-
-# Load and clean data
-data = processor.load_data()
-cleaned_data = processor.clean_data()
-
-# Perform analysis
-analyzer = TimeSeriesAnalyzer(processor)
-analyzer.basic_analysis()
+# The script will:
+# 1. Load S&P 500 data from sp500_data.csv
+# 2. Prepare and make the data stationary
+# 3. Train an ARIMA model
+# 4. Evaluate the model performance
+# 5. Generate future predictions
 ```
 
 # 4. Dependencies
+Required Python packages:
 - pandas
 - numpy
 - matplotlib
-- seaborn
-- scipy
 - statsmodels
-- yfinance
-- logging
+- scikit-learn
+- warnings
 
 # 5. Development Guidelines
 1. Follow PEP 8 style guidelines
-2. Add comprehensive docstrings to all functions and classes
+2. Add comprehensive docstrings to all functions
 3. Include error handling and logging
 4. Maintain consistent code structure
 5. Update this documentation when adding new features
-6. Write unit tests for new functionality 
+6. Write unit tests for new functionality
+
+# 6. Future Improvements
+1. Implement separate modules for data processing and analysis
+2. Add support for multiple stock symbols
+3. Enhance parameter selection for ARIMA model
+4. Add more advanced visualization options
+5. Implement additional time series models
